@@ -18,7 +18,7 @@ import ovh.gabrielhuav.sensores_escom_v2.data.map.OnlineServer.OnlineServerManag
 class MapView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    private val mapResourceId: Int = R.drawable.escom_mapa
+    private val mapResourceId: Int = R.drawable.escom_menu
 ) : View(context, attrs), OnlineServerManager.WebSocketListener {
 
     companion object {

@@ -70,7 +70,7 @@ class BuildingNumber2 : AppCompatActivity(),
             // Primero inicializamos el mapView
             mapView = MapView(
                 context = this,
-                mapResourceId = R.drawable.escom_edificio2
+                mapResourceId = R.drawable.escom_palapas
             )
             findViewById<FrameLayout>(R.id.map_container).addView(mapView)
 
@@ -81,7 +81,7 @@ class BuildingNumber2 : AppCompatActivity(),
             mapView.post {
                 // Configurar el mapa
                 val normalizedMap = MapMatrixProvider.normalizeMapName(MapMatrixProvider.MAP_BUILDING2)
-                mapView.setCurrentMap(normalizedMap, R.drawable.escom_edificio2)
+                mapView.setCurrentMap(normalizedMap, R.drawable.escom_palapas)
 
                 // Después configurar el playerManager
                 mapView.playerManager.apply {
@@ -362,7 +362,7 @@ class BuildingNumber2 : AppCompatActivity(),
     private fun returnToMainActivity() {
         // Obtener la posición previa del intent
         val previousPosition = intent.getSerializableExtra("PREVIOUS_POSITION") as? Pair<Int, Int>
-            ?: Pair(15, 10) // Posición por defecto si no hay previa
+            ?: Pair(6, 27) // Posición por defecto si no hay previa
 
         val intent = Intent(this, GameplayActivity::class.java).apply {
             putExtra("PLAYER_NAME", playerName)
@@ -381,7 +381,7 @@ class BuildingNumber2 : AppCompatActivity(),
         val intent = Intent(this, BuildingNumber2::class.java).apply {
             putExtra("PLAYER_NAME", playerName)
             putExtra("IS_SERVER", gameState.isServer)
-            putExtra("INITIAL_POSITION", Pair(1, 1))
+            putExtra("INITIAL_POSITION", Pair(1, 10))
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         startActivity(intent)
@@ -423,6 +423,20 @@ class BuildingNumber2 : AppCompatActivity(),
 
     // Bluetooth Callbacks
     override fun onBluetoothDeviceConnected(device: BluetoothDevice) {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_CONNECT
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
         gameState.remotePlayerName = device.name
         uiManager.updateBluetoothStatus("Conectado a ${device.name}")
     }

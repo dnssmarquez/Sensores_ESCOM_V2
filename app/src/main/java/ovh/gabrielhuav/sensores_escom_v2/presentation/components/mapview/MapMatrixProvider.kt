@@ -27,7 +27,8 @@ class MapMatrixProvider {
         const val MAP_SALON2009 = "escom_salon2009"
         const val MAP_SALON2010 = "escom_salon2010"
         const val MAP_CAFETERIA = "escom_cafeteria"
-
+        const val MAP_PALAPAS = "PALAPAS"
+        const val MAP_CAFETERIA2 = "escom_cafeteria2"
         fun normalizeMapName(mapName: String?): String {
             if (mapName.isNullOrBlank()) return MAP_MAIN
 
@@ -48,6 +49,8 @@ class MapMatrixProvider {
 
                 // Cafetería
                 lowerMap.contains("cafe") || lowerMap.contains("cafeteria") -> MAP_CAFETERIA
+                // Cafetería
+                lowerMap.contains("cafe2") || lowerMap.contains("cafeteria2") -> MAP_CAFETERIA2
 
                 // Si no coincide con ninguno de los anteriores, devolver el original
                 else -> mapName
@@ -55,7 +58,7 @@ class MapMatrixProvider {
         }
 
         // Puntos de transición entre mapas
-        val MAIN_TO_BUILDING2_POSITION = Pair(15, 10)
+        val MAIN_TO_BUILDING2_POSITION = Pair(6, 27)
         val BUILDING2_TO_MAIN_POSITION = Pair(5, 5)  // Posición segura en la esquina superior izquierda
         val BUILDING2_TO_SALON2009_POSITION = Pair(15, 16)  // Punto en el pasillo principal
         val SALON2009_TO_BUILDING2_POSITION = Pair(1, 20)  // Punto en la puerta del salón
@@ -79,7 +82,9 @@ class MapMatrixProvider {
                 MAP_SALON2009 -> createSalon2009Matrix()  // Nueva matriz para el salón 2009
                 MAP_SALON2010 -> createSalon2010Matrix()  // Nueva matriz para el salón 2010
                 MAP_CAFETERIA -> createCafeESCOMMatrix()
-                else -> createDefaultMatrix() // Por defecto, un mapa básico
+                MAP_CAFETERIA2 -> createCafe2ESCOMMatrix()
+                MAP_PALAPAS -> createDefaultMatrix() // Por defecto, un mapa básico
+                else -> createDefaultMatrix()
             }
         }
 
@@ -97,17 +102,18 @@ class MapMatrixProvider {
                         matrix[i][j] = WALL
                     }
                     // Zonas interactivas (edificios, entradas)
-                    else if (i == 10 && j == 15) {
+                    else if (i == 27 && j == 6){
                         matrix[i][j] = INTERACTIVE // Entrada al edificio 2
                     }
                     // Obstáculos (árboles, bancas, etc)
-                    else if (i % 7 == 0 && j % 8 == 0) {
+                    else if (i % 7 == 0 && j % 8 == 0){
                         matrix[i][j] = INACCESSIBLE
                     }
                     // Caminos especiales
                     else if ((i % 5 == 0 || j % 5 == 0) && i > 5 && j > 5) {
                         matrix[i][j] = PATH
                     }
+
                 }
             }
 
@@ -137,8 +143,164 @@ class MapMatrixProvider {
          * |                      [    Pasillo Principal 🚶    ]                     |
          * |                                                                         |
          * +-------------------------------------------------------------------------+
-         */y
+         */
         private fun createBuilding2Matrix(): Array<Array<Int>> {
+            // Crear matriz con PATH (caminable) por defecto
+            val matrix = Array(MAP_HEIGHT) { Array(MAP_WIDTH) { PATH } }
+
+            // Constantes para dimensiones del edificio
+            val roomTop = 0           // Posición superior de las aulas
+            val roomHeight = 10        // Altura de las aulas (más grandes)
+            val roomBottom = roomTop + roomHeight
+            val corridorTop = roomBottom + 1
+            val corridorHeight = 0    // Altura del pasillo principal
+            val corridorBottom = corridorTop + corridorHeight
+
+            // Número de aulas + baño
+            val numRooms = 7
+            val roomWidth = (MAP_WIDTH - 2) / numRooms
+
+            // Crear bordes del edificio
+            // Borde superior del edificio
+            for (x in 0 until MAP_WIDTH) {
+                matrix[roomTop - 1][x] = WALL
+            }
+
+            // Borde inferior del edificio
+            if (corridorBottom + 1 < MAP_HEIGHT) {
+                for (x in 0 until MAP_WIDTH) {
+                    matrix[corridorBottom + 1][x] = WALL
+                }
+            }
+
+            // Bordes laterales del edificio
+            for (y in roomTop - 1..corridorBottom + 1) {
+                if (y < MAP_HEIGHT) {
+                    matrix[y][0] = WALL
+                    if (MAP_WIDTH - 1 < MAP_WIDTH) {
+                        matrix[y][MAP_WIDTH - 1] = WALL
+                    }
+                }
+            }
+
+            // Crear divisiones verticales entre aulas
+            for (i in 0..numRooms) {
+                val x = 1 + (i * roomWidth)
+                if (x < MAP_WIDTH) {
+                    for (y in roomTop until roomBottom) {
+                        matrix[y][x] = WALL
+                    }
+                }
+            }
+
+            // Bordes horizontales de las aulas
+            for (x in 1 until MAP_WIDTH - 1) {
+                // Borde superior de las aulas
+                matrix[roomTop][x] = WALL
+
+                // Borde inferior de las aulas (justo encima del pasillo)
+                matrix[roomBottom][x] = WALL
+            }
+
+            // Crear el área de escaleras (entre las aulas 3 y 4)
+            val stairsIndex = 3
+            val stairsX = 1 + (stairsIndex * roomWidth)
+
+            // Limpiar el área de escaleras
+            for (y in roomTop + 1 until roomBottom) {
+                for (x in stairsX until stairsX + roomWidth) {
+                    if (x < MAP_WIDTH) {
+                        matrix[y][x] = PATH
+                    }
+                }
+            }
+
+            // Hacer las escaleras interactivas
+            val stairsCenterX = stairsX + roomWidth/2
+            val stairsCenterY = roomTop + roomHeight/2
+
+            // Definir área interactiva alrededor del centro
+            for (y in stairsCenterY - 1..stairsCenterY + 1) {
+                for (x in stairsCenterX - 1..stairsCenterX + 1) {
+                    if (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT) {
+                        matrix[y][x] = INTERACTIVE
+                    }
+                }
+            }
+
+            // Crear puertas para cada aula
+            for (i in 0 until numRooms) {
+                if (i == stairsIndex) continue // Saltar escaleras
+
+                val doorX = 1 + (i * roomWidth) + (roomWidth / 2)
+                if (doorX < MAP_WIDTH) {
+                    matrix[roomBottom][doorX] = PATH
+
+                    // Hacer las puertas más anchas para facilitar el acceso
+                    if (doorX - 1 >= 0) matrix[roomBottom][doorX - 1] = PATH
+                    if (doorX + 1 < MAP_WIDTH) matrix[roomBottom][doorX + 1] = PATH
+                }
+            }
+
+            // Crear pasillo principal - amplio y completamente caminable
+            for (y in corridorTop until corridorTop + corridorHeight) {
+                if (y < MAP_HEIGHT) {
+                    for (x in 1 until MAP_WIDTH - 1) {
+                        matrix[y][x] = PATH
+                    }
+                }
+            }
+
+            // Añadir puntos interactivos para las transiciones
+
+            // Entrada a la sala 2009 (en el pasillo, centrado)
+            val corridorCenterY = corridorTop + corridorHeight/2
+
+            // Múltiples puntos interactivos a lo largo del pasillo
+            val interactivePoints = listOf(
+                (MAP_WIDTH / 2),
+                (MAP_WIDTH / 3),
+                (2 * MAP_WIDTH / 3),
+                stairsCenterX
+            )
+
+            for (x in interactivePoints) {
+                if (x >= 0 && x < MAP_WIDTH && corridorCenterY >= 0 && corridorCenterY < MAP_HEIGHT) {
+                    matrix[corridorCenterY][x] = INTERACTIVE
+                }
+            }
+
+            // Salida al mapa principal (lado izquierdo)
+            if (corridorCenterY < MAP_HEIGHT) {
+                matrix[corridorCenterY][2] = INTERACTIVE
+            }
+
+            // Hacer el interior de las aulas navegable
+            for (i in 0 until numRooms) {
+                if (i == stairsIndex) continue  // Saltar escaleras
+
+                val roomStartX = 1 + (i * roomWidth) + 1
+                val roomEndX = 1 + ((i + 1) * roomWidth) - 1
+
+                for (y in roomTop + 1 until roomBottom) {
+                    for (x in roomStartX until roomEndX + 1) {
+                        if (x < MAP_WIDTH) {
+                            matrix[y][x] = PATH
+                        }
+                    }
+                }
+            }
+
+            return matrix
+        }
+
+        /**
+         * Matriz para cafeteria 2
+         * +-------------------------------------------------------------------------+
+         * |                               Cafeteria 2
+         * +-------------------------------------------------------------------------+
+         */
+        private fun createCafe2ESCOMMatrix(): Array<Array<Int>> {
             // Crear matriz con PATH (caminable) por defecto
             val matrix = Array(MAP_HEIGHT) { Array(MAP_WIDTH) { PATH } }
 
@@ -288,7 +450,6 @@ class MapMatrixProvider {
             return matrix
         }
 
-
         /**
          * Matriz para el salón 2009
          */
@@ -356,7 +517,7 @@ class MapMatrixProvider {
                         matrix[i][j] = WALL
                     }
                     // Zonas interactivas (edificios, entradas)
-                    else if (i == 10 && j == 15) {
+                    else if (i == 10 && j == 10) {
                         matrix[i][j] = INTERACTIVE // Entrada al edificio 2
                     }
                     // Obstáculos (árboles, bancas, etc)
@@ -497,7 +658,7 @@ class MapMatrixProvider {
             // nos lleva al salón 2009
             if (mapId == MAP_BUILDING2) {
                 // Si estamos en o cerca de las coordenadas (15,16) o cualquiera de las alternativas
-                val nearCenter = (x >= 14 && x <= 16 && y >= 15 && y <= 17)
+                val nearCenter = (x >= 5 && x <= 7 && y >= 27 && y <= 29)
                 val alternative1 = (x == 20 && y == 20)
                 val alternative2 = (x == 25 && y == 16)
 
@@ -530,7 +691,7 @@ class MapMatrixProvider {
                 }
             }
 
-            if (mapId == MAP_MAIN && x == 33 && y == 34) {
+            if (mapId == MAP_MAIN && x == 26 && y == 35) {
                 return MAP_CAFETERIA
             }
             // Resto de transiciones...
@@ -548,7 +709,7 @@ class MapMatrixProvider {
                 MAP_BUILDING2 -> Pair(20, 16)  // Centro del pasillo principal del edificio 2
                 MAP_SALON2009 -> Pair(20, 20)  // Posición central dentro del salón 2009
                 MAP_SALON2010 -> Pair(20, 20)  // Posición central dentro del salón 2010
-                MAP_CAFETERIA -> Pair(2, 2)  // Posición central dentro de la escomCAFE
+                MAP_CAFETERIA -> Pair(2, 10)  // Posición central dentro de la escomCAFE
 
                 else -> Pair(MAP_WIDTH / 2, MAP_HEIGHT / 2)
             }
@@ -564,16 +725,16 @@ class MapMatrix(private val mapId: String) {
 
     private val paints = mapOf(
         MapMatrixProvider.INTERACTIVE to Paint().apply {
-            color = Color.argb(100, 0, 255, 255)  // Cian semi-transparente para puntos interactivos
+            color = Color.argb(255, 73, 175, 175)  // Cian semi-transparente para puntos interactivos
         },
         MapMatrixProvider.WALL to Paint().apply {
-            color = Color.argb(150, 139, 69, 19)  // Marrón semi-transparente para paredes
+            color = Color.argb(255, 7, 7, 7)  // Marrón semi-transparente para paredes
         },
         MapMatrixProvider.PATH to Paint().apply {
-            color = Color.argb(30, 220, 220, 255)  // Gris azulado muy transparente para caminos
+            color = Color.argb(255, 220, 220, 255)  // Gris azulado muy transparente para caminos
         },
         MapMatrixProvider.INACCESSIBLE to Paint().apply {
-            color = Color.argb(120, 178, 34, 34)  // Rojo ladrillo semi-transparente para objetos
+            color = Color.argb(255, 178, 34, 34)  // Rojo ladrillo semi-transparente para objetos
         }
     )
 

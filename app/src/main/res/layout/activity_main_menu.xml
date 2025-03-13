@@ -10,18 +10,18 @@
         android:id="@+id/etPlayerName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Ingrese su nombre"
+        android:hint="@string/ingrese_su_nombre"
         android:inputType="textPersonName" />
 
     <Button
         android:id="@+id/btnStartGame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Iniciar Juego" />
+        android:text="@string/iniciar_juego" />
 
     <Button
         android:id="@+id/btnBluetoothConnect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Conexión Bluetooth" />
+        android:text="@string/conexi_n_bluetooth" />
 </LinearLayout>

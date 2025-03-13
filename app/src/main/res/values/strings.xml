@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Sensores_ESCOM_V2</string>
+    <string name="iniciar_juego">Iniciar Juego</string>
+    <string name="ingrese_su_nombre">Ingrese su nombre</string>
+    <string name="conexi_n_bluetooth">Conexión Bluetooth</string>
 </resources>
