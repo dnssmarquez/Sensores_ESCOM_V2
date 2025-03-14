@@ -24,6 +24,9 @@ class MapMatrixProvider {
         // Constantes para los mapas
         const val MAP_MAIN = "escom_main"
         const val MAP_BUILDING2 = "escom_building2"
+        const val MAP_ESCOM = "escom"
+        const val MAP_METRO = "escom_metro"
+        const val MAP_CASA = "escom_casa"
         const val MAP_SALON2009 = "escom_salon2009"
         const val MAP_SALON2010 = "escom_salon2010"
         const val MAP_CAFETERIA = "escom_cafeteria"
@@ -83,6 +86,9 @@ class MapMatrixProvider {
                 MAP_SALON2010 -> createSalon2010Matrix()  // Nueva matriz para el salón 2010
                 MAP_CAFETERIA -> createCafeESCOMMatrix()
                 MAP_CAFETERIA2 -> createCafe2ESCOMMatrix()
+                MAP_ESCOM -> createESCOMMatrix()
+                MAP_METRO -> createMETROMatrix()
+                MAP_CASA -> createCASAMatrix()
                 MAP_PALAPAS -> createDefaultMatrix() // Por defecto, un mapa básico
                 else -> createDefaultMatrix()
             }
@@ -92,6 +98,166 @@ class MapMatrixProvider {
          * Matriz para el mapa principal del campus
          */
         private fun createMainMapMatrix(): Array<Array<Int>> {
+            val matrix = Array(MAP_HEIGHT) { Array(MAP_WIDTH) { PATH } }
+
+            // Configuración de bordes
+            for (i in 0 until MAP_HEIGHT) {
+                for (j in 0 until MAP_WIDTH) {
+                    // Bordes exteriores
+                    if (i == 0 || i == MAP_HEIGHT - 1 || j == 0 || j == MAP_WIDTH - 1) {
+                        matrix[i][j] = WALL
+                    }
+                    // Zonas interactivas (edificios, entradas)
+                    else if (i == 19 && j == 2 || i == 26 && j == 2 || i == 27 && j == 36|| i == 23 && j == 36){
+                        matrix[i][j] = INTERACTIVE // Entrada al edificio 2
+                    }
+                    // Obstáculos (árboles, bancas, etc)
+                    else if ((j in 5..7 && i in 1..28)) { // Rectángulo inaccesible
+                        matrix[i][j] = INACCESSIBLE
+                    }
+                    // Obstáculos (árboles, bancas, etc)i in 1..38 && j in 3..32
+                    else if ((j in 5..33 && i in 29..32)) { // Rectángulo inaccesible
+                        matrix[i][j] = INACCESSIBLE
+                    }
+                    // Obstáculos (árboles, bancas, etc)i in 1..38 && j in 3..32
+                    else if ((j in 29..33 && i in 12..28)) { // Rectángulo inaccesible
+                        matrix[i][j] = INACCESSIBLE
+                    }
+                    // Obstáculos (árboles, bancas, etc)i in 1..38 && j in 3..32
+                    else if ((j in 33..38 && i in 1..11)) { // Rectángulo inaccesible
+                        matrix[i][j] = INACCESSIBLE
+                    }
+                    // Caminos especiales
+                    else if ((i % 5 == 0 || j % 5 == 0) && i > 5 && j > 5) {
+                        matrix[i][j] = PATH
+                    }
+
+                }
+            }
+
+            // Áreas de juego específicas
+            // Zona central despejada
+            for (i in 15..25) {
+                for (j in 15..25) {
+                    matrix[i][j] = PATH
+                }
+            }
+
+            return matrix
+        }
+
+
+        private fun createMETROMatrix(): Array<Array<Int>> {
+            val matrix = Array(MAP_HEIGHT) { Array(MAP_WIDTH) { PATH } }
+
+            // Configuración de bordes
+            for (i in 0 until MAP_HEIGHT) {
+                for (j in 0 until MAP_WIDTH) {
+                    // Bordes exteriores
+                    if (i == 0 || i == MAP_HEIGHT - 1 || j == 0 || j == MAP_WIDTH - 1) {
+                        matrix[i][j] = WALL
+                    }
+                    // Zonas interactivas (edificios, entradas)
+                    else if (i == 1 && j == 1 || i == 15 && j ==28  ){
+                        matrix[i][j] = INTERACTIVE // Entrada al edificio 2
+                    }
+                    // Obstáculos (árboles, bancas, etc)
+                    else if ((j in 4..14 && i in 19..20)) { // Rectángulo inaccesible
+                        matrix[i][j] = INACCESSIBLE
+                    }
+                    // Obstáculos (árboles, bancas, etc)i in 1..38 && j in 3..32
+                    else if ((j in 1..38 && i in 29..32)) { // Rectángulo inaccesible
+                        matrix[i][j] = INACCESSIBLE
+                    }
+                    // Obstáculos (árboles, bancas, etc)i in 1..38 && j in 3..32
+                    else if ((j in 31..33 && i in 12..28)) { // Rectángulo inaccesible
+                        matrix[i][j] = INACCESSIBLE
+                    }
+                    // Obstáculos (árboles, bancas, etc)i in 1..38 && j in 3..32
+                    else if ((j in 26..31 && i in 11..12)) { // Rectángulo inaccesible
+                        matrix[i][j] = INACCESSIBLE
+                    }
+                    // Caminos especiales
+                    // else if ((i % 5 == 0 || j % 5 == 0) && i > 5 && j > 5) {
+                    //     matrix[i][j] = PATH
+                    // }
+                    // Obstáculos (árboles, bancas, etc)i in 1..38 && j in 3..32
+                    else if ((j in 2..3 && i in 1..18)) { // Rectángulo inaccesible
+                        matrix[i][j] = INACCESSIBLE
+                    }
+                    // Obstáculos (árboles, bancas, etc)
+                    else if ((j in 15..26 && i in 19..20)) { // Rectángulo inaccesible
+                        matrix[i][j] = INACCESSIBLE
+                    }
+                    // Obstáculos (árboles, bancas, etc)
+                    else if ((j in 24..25 && i in 13..18)) { // Rectángulo inaccesible
+                        matrix[i][j] = INACCESSIBLE
+                    }
+
+                }
+            }
+
+            // Áreas de juego específicas
+            // Zona central despejada
+            // for (i in 15..25) {
+            //  for (j in 15..25) {
+            //     matrix[i][j] = PATH
+            //  }
+            // }
+
+            return matrix
+        }
+
+        private fun createCASAMatrix(): Array<Array<Int>> {
+            val matrix = Array(MAP_HEIGHT) { Array(MAP_WIDTH) { PATH } }
+
+            // Configuración de bordes
+            for (i in 0 until MAP_HEIGHT) {
+                for (j in 0 until MAP_WIDTH) {
+                    // Bordes exteriores
+                    if (i == 0 || i == MAP_HEIGHT - 1 || j == 0 || j == MAP_WIDTH - 1) {
+                        matrix[i][j] = WALL
+                    }
+                    // Zonas interactivas (edificios, entradas)
+                    else if (i == 1 && j == 2 ){
+                        matrix[i][j] = INTERACTIVE // Entrada al edificio 2
+                    }
+                    // Obstáculos (árboles, bancas, etc)
+                    else if ((j in 5..7 && i in 1..28)) { // Rectángulo inaccesible
+                        matrix[i][j] = INACCESSIBLE
+                    }
+                    // Obstáculos (árboles, bancas, etc)i in 1..38 && j in 3..32
+                    else if ((j in 5..33 && i in 29..32)) { // Rectángulo inaccesible
+                        matrix[i][j] = INACCESSIBLE
+                    }
+                    // Obstáculos (árboles, bancas, etc)i in 1..38 && j in 3..32
+                    else if ((j in 27..29 && i in 15..25)) { // Rectángulo inaccesible
+                        matrix[i][j] = INACCESSIBLE
+                    }
+                    // Obstáculos (árboles, bancas, etc)i in 1..38 && j in 3..32
+                    else if ((j in 17..20 && i in 15..28)) { // Rectángulo inaccesible
+                        matrix[i][j] = INACCESSIBLE
+                    }
+                    // Caminos especiales
+                    //else if ((i % 5 == 0 || j % 5 == 0) && i > 5 && j > 5) {
+                    //    matrix[i][j] = PATH
+                    //}
+
+                }
+            }
+
+            // Áreas de juego específicas
+            // Zona central despejada
+            // for (i in 15..25) {
+            //     for (j in 15..25) {
+            //         matrix[i][j] = PATH
+            //     }
+            // }
+
+            return matrix
+        }
+
+        private fun createESCOMMatrix(): Array<Array<Int>> {
             val matrix = Array(MAP_HEIGHT) { Array(MAP_WIDTH) { PATH } }
 
             // Configuración de bordes

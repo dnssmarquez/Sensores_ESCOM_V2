@@ -23,7 +23,7 @@ class MapState {
 
     fun onSizeChanged(w: Int, h: Int, context: Context) {
         try {
-            val originalBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.escom_menu)
+            val originalBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.general)
             if (originalBitmap != null) {
                 // Limitar el tamaño del Bitmap al tamaño de la vista
                 val scaledWidth = minOf(originalBitmap.width, w)

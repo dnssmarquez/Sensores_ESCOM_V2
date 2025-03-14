@@ -68,6 +68,15 @@
         <activity
             android:name=".presentation.components.Cafeteria2"
             android:configChanges="orientation|screenSize|keyboardHidden"/>
+        <activity
+            android:name=".presentation.components.casa"
+            android:configChanges="orientation|screenSize|keyboardHidden"/>
+        <activity
+            android:name=".presentation.components.escom"
+            android:configChanges="orientation|screenSize|keyboardHidden"/>
+        <activity
+            android:name=".presentation.components.metro"
+            android:configChanges="orientation|screenSize|keyboardHidden"/>
 
         <!-- DeviceList Activity -->
         <activity
