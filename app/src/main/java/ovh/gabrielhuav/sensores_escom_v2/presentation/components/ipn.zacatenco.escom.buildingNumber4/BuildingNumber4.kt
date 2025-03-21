@@ -21,7 +21,7 @@ import ovh.gabrielhuav.sensores_escom_v2.presentation.components.ipn.zacatenco.e
 import ovh.gabrielhuav.sensores_escom_v2.presentation.components.ipn.zacatenco.escom.buildingNumber2.classrooms.Salon2010
 import ovh.gabrielhuav.sensores_escom_v2.presentation.components.mapview.*
 
-class BuildingNumber2 : AppCompatActivity(),
+class BuildingNumber4 : AppCompatActivity(),
     BluetoothManager.BluetoothManagerCallback,
     BluetoothGameManager.ConnectionListener,
     OnlineServerManager.WebSocketListener,
@@ -69,11 +69,7 @@ class BuildingNumber2 : AppCompatActivity(),
             // Primero inicializamos el mapView
             mapView = MapView(
                 context = this,
-<<<<<<< HEAD
-                mapResourceId = R.drawable.escom_palapas
-=======
-                mapResourceId = R.drawable.escom_edificio_2_planta_baja
->>>>>>> 89170fe2e89080d6ad31f02efc4c5de74165051a
+                mapResourceId = R.drawable.escom_edificio_4_piso_2
             )
             findViewById<FrameLayout>(R.id.map_container).addView(mapView)
 
@@ -84,11 +80,7 @@ class BuildingNumber2 : AppCompatActivity(),
             mapView.post {
                 // Configurar el mapa
                 val normalizedMap = MapMatrixProvider.normalizeMapName(MapMatrixProvider.MAP_BUILDING2)
-<<<<<<< HEAD
-                mapView.setCurrentMap(normalizedMap, R.drawable.escom_palapas)
-=======
-                mapView.setCurrentMap(normalizedMap, R.drawable.escom_edificio_2_planta_baja)
->>>>>>> 89170fe2e89080d6ad31f02efc4c5de74165051a
+                mapView.setCurrentMap(normalizedMap, R.drawable.escom_edificio_4_piso_2)
 
                 // Después configurar el playerManager
                 mapView.playerManager.apply {
@@ -145,14 +137,14 @@ class BuildingNumber2 : AppCompatActivity(),
 
     private fun initializeManagers() {
         bluetoothManager = BluetoothManager.getInstance(this, uiManager.tvBluetoothStatus).apply {
-            setCallback(this@BuildingNumber2)
+            setCallback(this@BuildingNumber4)
         }
 
         bluetoothBridge = BluetoothWebSocketBridge.getInstance()
 
         // Configurar OnlineServerManager con el listener
         val onlineServerManager = OnlineServerManager.getInstance(this).apply {
-            setListener(this@BuildingNumber2)
+            setListener(this@BuildingNumber4)
         }
 
         serverConnectionManager = ServerConnectionManager(
@@ -179,15 +171,15 @@ class BuildingNumber2 : AppCompatActivity(),
         when (targetMap) {
             MapMatrixProvider.MAP_MAIN -> {
                 // Transición al mapa principal
-                //returnToMainActivity()
+                returnToMainActivity()
             }
             MapMatrixProvider.MAP_SALON2009 -> {
                 // Transición al salón 2009
-                //startSalon2009Activity()
+                startSalon2009Activity()
             }
             MapMatrixProvider.MAP_SALON2010 -> {
                 // Transición al salón 2010
-                //startSalon2010Activity()
+                startSalon2010Activity()
             }
             // Añadir más casos según sea necesario para otros mapas
             else -> {
@@ -369,7 +361,7 @@ class BuildingNumber2 : AppCompatActivity(),
     private fun returnToMainActivity() {
         // Obtener la posición previa del intent
         val previousPosition = intent.getSerializableExtra("PREVIOUS_POSITION") as? Pair<Int, Int>
-            ?: Pair(6, 27) // Posición por defecto si no hay previa
+            ?: Pair(15, 10) // Posición por defecto si no hay previa
 
         val intent = Intent(this, GameplayActivity::class.java).apply {
             putExtra("PLAYER_NAME", playerName)
@@ -384,20 +376,17 @@ class BuildingNumber2 : AppCompatActivity(),
         finish()
     }
 
-<<<<<<< HEAD
     private fun startBuildingActivity() {
-        val intent = Intent(this, BuildingNumber2::class.java).apply {
+        val intent = Intent(this, BuildingNumber4::class.java).apply {
             putExtra("PLAYER_NAME", playerName)
             putExtra("IS_SERVER", gameState.isServer)
-            putExtra("INITIAL_POSITION", Pair(1, 10))
+            putExtra("INITIAL_POSITION", Pair(1, 1))
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         startActivity(intent)
         finish()
     }
 
-=======
->>>>>>> 89170fe2e89080d6ad31f02efc4c5de74165051a
     private fun updatePlayerPosition(position: Pair<Int, Int>) {
         runOnUiThread {
             try {
@@ -407,7 +396,7 @@ class BuildingNumber2 : AppCompatActivity(),
                 mapView.updateLocalPlayerPosition(position, forceCenter = true)
 
                 if (gameState.isConnected) {
-                    serverConnectionManager.sendUpdateMessage(playerName, position, "escom_building2")
+                    serverConnectionManager.sendUpdateMessage(playerName, position, "escom_building4_floor_2")
                 }
 
                 checkPositionForMapChange(position)
@@ -433,20 +422,6 @@ class BuildingNumber2 : AppCompatActivity(),
 
     // Bluetooth Callbacks
     override fun onBluetoothDeviceConnected(device: BluetoothDevice) {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.BLUETOOTH_CONNECT
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return
-        }
         gameState.remotePlayerName = device.name
         uiManager.updateBluetoothStatus("Conectado a ${device.name}")
     }
